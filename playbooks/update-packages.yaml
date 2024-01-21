@@ -10,6 +10,7 @@
 
 - hosts: worker-nodes
   become: true
+  become_user: fredgent
   become_method: sudo
     #become_user: tracy
   tasks:
