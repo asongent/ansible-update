@@ -1,9 +1,55 @@
 ---
-- hosts: all
+# - hosts: all
 
+#   become: true
+#   tasks:
+#     - name: update apt packages
+#       apt:
+#         upgrade: yes
+#         update_cache: yes
+
+- hosts: worker-nodes
   become: true
+    #become_user: tracy
   tasks:
-    - name: update apt packages
+    - name: Update apt repo and cache on all Debian/Ubuntu boxes
+      apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+
+    - name: Upgrade all packages on servers
+      apt: upgrade=dist force_apt_get=yes
+
+    - name: Check if a reboot is needed on all servers
+      register: reboot_required_file
+      stat: path=/var/run/reboot-required get_md5=no
+    
+    - name: Install aptitude
       apt:
-        upgrade: yes
-        update_cache: yes
+        name: aptitude
+        state: latest
+        update_cache: true
+
+    - name: install Installing open-iscsi and nfs-client
+      apt:
+        pkg:
+          - open-iscsi
+          - nfs-client
+        state: latest
+        update_cache: true
+    - name: enable iscsid
+      systemd:
+          name: iscsid
+          enabled: true
+
+    - name: start iscsid
+      systemd:
+          name: iscsid
+          state: started
+    - name: enable nfs-utils
+      systemd:
+          name: nfs-utils
+          enabled: true
+
+    - name: start nfs-utils
+      systemd:
+          name: nfs-utils
+          state: started
