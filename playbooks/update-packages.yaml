@@ -10,6 +10,7 @@
 
 - hosts: worker-nodes
   become: true
+  become_method: sudo
     #become_user: tracy
   tasks:
     - name: Update apt repo and cache on all Debian/Ubuntu boxes
